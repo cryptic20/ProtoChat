@@ -3,7 +3,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -20,6 +23,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
   private GridBagConstraints gbc;
   private JButton msg;
   private JButton exit;
+  private Windows array;
 
   public MessagePanel() {
     super();
@@ -77,8 +81,57 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
   @Override
   public void run() {
     // listen for messages
+    DatagramSocket inSocket = null;
+    byte[] inBuffer = new byte[140];
+    DatagramPacket inPacket = new DatagramPacket(inBuffer, inBuffer.length);
 
+    int sourcePort = inPacket.getPort();
+    InetAddress sourceAddress = inPacket.getAddress();
+
+
+    System.out.println(sourcePort + " " + sourceAddress);
+
+    try {
+      inSocket = new DatagramSocket(31000, address);
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.exit(-1);
+    }
+
+    do {
+      for (int i = 0; i < inBuffer.length; i++) {
+        inBuffer[i] = ' ';
+      }
+
+      try {
+        // this thread will block in the receive call
+        // until a message is received
+        System.out.println("Waiting for input...");
+        inSocket.receive(inPacket);
+      } catch (Exception e) {
+        e.printStackTrace();
+        System.exit(-1);
+      }
+
+      String message = new String(inPacket.getData());
+      System.out.println("Received message = " + message);
+
+      newWindow chat = new newWindow();
+      chat.setVisible(true);
+      chat.setTitle("PORT: " + sourcePort + " IP Address: " + sourceAddress.getHostAddress());
+      chat.setPort(sourcePort);
+      try {
+        chat.setAddress(sourceAddress);
+      } catch (UnknownHostException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+      chat.addToTextArea(message);
+
+    } while (true);
   }
+
+
 
   @Override
   public void actionPerformed(ActionEvent e) {
@@ -86,6 +139,10 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
     switch (btnClicked.getText()) {
       case "New Message":
         System.out.println("creating new message");
+
+        newWindow chat = new newWindow();
+        chat.setVisible(true);
+        array.addWindow(chat);
         break;
       case "Exit":
         System.out.println("System exiting...");

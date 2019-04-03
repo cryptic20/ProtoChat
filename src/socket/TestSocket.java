@@ -2,6 +2,7 @@ package socket;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 
 public class TestSocket {
@@ -13,9 +14,14 @@ public class TestSocket {
     mySocket = new Socket(64000, Socket.SocketType.NoBroadcast);
 
     System.out.println("My Address = " + mySocket.getAddress().getHostAddress());
+    try {
+      InetAddress inet = InetAddress.getByName("10.0.75.1");
+    } catch (UnknownHostException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
 
-    mySocket.send("Hello Object Oriented Communication World!!!", mySocket.getAddress(),
-        mySocket.getPortNumber());
+    mySocket.send("Hello Object Oriented Communication World!!!", mySocket.getAddress(), 8080);
 
     System.out.println("Going to sleep .... z z z z z");
 
