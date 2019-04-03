@@ -1,66 +1,99 @@
-import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.net.InetAddress;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 
 @SuppressWarnings("serial")
-public class MessagePanel extends JPanel implements Runnable {
-  private final int WIDTH = 320;
-  private final int HEIGHT = 240;
-  private Thread thread;
+public class MessagePanel extends JPanel implements Runnable, ActionListener {
+  private final int WIDTH = 300;
+  private final int HEIGHT = 400;
   private final int port = 8080;
+  private InetAddress address;
+  private Thread thread;
   private String ip_address = "";
-  
+  private GridBagConstraints gbc;
+  private JButton msg;
+  private JButton exit;
+
   public MessagePanel() {
     super();
-    setPreferredSize(
-        new Dimension(WIDTH, HEIGHT));
-    setFocusable(true);
-    requestFocus();
-}
+    setPreferredSize(new Dimension(WIDTH, HEIGHT));
+    setBorder(new EmptyBorder(5, 5, 5, 5));
+    setLayout(new GridBagLayout());
+
+    gbc = new GridBagConstraints();
+    gbc.gridwidth = GridBagConstraints.REMAINDER;
+    gbc.anchor = GridBagConstraints.NORTH;
+
+    add(new JLabel("<html><h1><strong>Chat APP</strong></h1><hr></html>"), gbc);
+
+    gbc.anchor = GridBagConstraints.CENTER;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+
+    JPanel buttons = new JPanel(new GridBagLayout());
+    msg = new JButton("New Message");
+    msg.addActionListener(this);
+    exit = new JButton("Exit");
+    exit.addActionListener(this);
+    buttons.add(msg, gbc);
+    buttons.add(exit, gbc);
+
+    gbc.weighty = 1;
+    add(buttons, gbc);
+
+    try {
+      getAddress();
+    } catch (java.net.UnknownHostException e) {
+      e.printStackTrace();
+    }
+  }
+
   public void addNotify() {
     super.addNotify();
-    if(thread == null) {
-        thread = new Thread(this);
-        thread.start();
+    if (thread == null) {
+      thread = new Thread(this);
+      thread.start();
     }
-}
-  
-  private void init() {
-    
-    //label for ip address
-    JLabel ip_label = new JLabel();
-    ip_label.setText("My IP: "+ this.ip_address);
-    
-    //label for 
-    
-    
-    //buttons
-    JButton closeBtn = new JButton("Close");
-    closeBtn.setToolTipText("Exit");
-    closeBtn.setSize(100, 30);
-    closeBtn.setBackground(Color.RED);
-    
-    JButton newMsgBtn = new JButton("New Message");
-    newMsgBtn.setToolTipText("Send New Message");
-    newMsgBtn.setSize(100, 30);
-    newMsgBtn.setBackground(Color.GREEN);
-    
-    //add components
-    this.add(ip_label);
-    this.add(newMsgBtn);
-    this.add(closeBtn);
   }
-  
- @Override
+
+  private void getAddress() throws java.net.UnknownHostException {
+    address = InetAddress.getLocalHost();
+    ip_address = address.getHostAddress();
+    System.out.println(ip_address);
+
+    add(new JLabel("<html>" + "<h1>" + "<strong>My IP: " + ip_address + "</h1><h2>My PORT: " + port
+        + "</h2></html>"), gbc);
+
+  }
+
+
+
+  @Override
   public void run() {
-    init();
-    
-    while(true) {
-      System.out.println("tet");
+    // listen for messages
+
+  }
+
+  @Override
+  public void actionPerformed(ActionEvent e) {
+    JButton btnClicked = (JButton) e.getSource();
+    switch (btnClicked.getText()) {
+      case "New Message":
+        System.out.println("creating new message");
+        break;
+      case "Exit":
+        System.out.println("System exiting...");
+        System.exit(0);
+        break;
+      default:
+        break;
     }
-   
   }
 
 }
