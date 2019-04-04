@@ -1,11 +1,10 @@
 public class Windows {
-
   private newWindow[] windows;
   private int index;
 
   public void addWindow(newWindow newWindow) {
     System.out.println(newWindow.getTitle());
-    windows = new newWindow[50]; /// 30
+
 
 
     if (!(isInArray(newWindow.getTitle()))) {

@@ -6,7 +6,7 @@ import java.awt.event.ActionListener;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.SocketException;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -17,16 +17,19 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
   private final int WIDTH = 300;
   private final int HEIGHT = 400;
   private final int port = 8080;
-  private InetAddress address;
+  private InetAddress myAddress;
+  private static DatagramSocket socket;
   private Thread thread;
   private String ip_address = "";
   private GridBagConstraints gbc;
   private JButton msg;
   private JButton exit;
-  private Windows array;
+  private static Windows array;
+
 
   public MessagePanel() {
     super();
+    array = new Windows();
     setPreferredSize(new Dimension(WIDTH, HEIGHT));
     setBorder(new EmptyBorder(5, 5, 5, 5));
     setLayout(new GridBagLayout());
@@ -55,7 +58,18 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
       getAddress();
     } catch (java.net.UnknownHostException e) {
       e.printStackTrace();
+      System.exit(-1);
     }
+
+    try {
+      socket = new DatagramSocket(port, myAddress);
+    } catch (SocketException s) {
+      s.printStackTrace();
+      System.exit(-1);
+    }
+
+
+
   }
 
   public void addNotify() {
@@ -67,8 +81,8 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
   }
 
   private void getAddress() throws java.net.UnknownHostException {
-    address = InetAddress.getLocalHost();
-    ip_address = address.getHostAddress();
+    myAddress = InetAddress.getLocalHost();
+    ip_address = myAddress.getHostAddress();
     System.out.println(ip_address);
 
     add(new JLabel("<html>" + "<h1>" + "<strong>My IP: " + ip_address + "</h1><h2>My PORT: " + port
@@ -81,22 +95,16 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
   @Override
   public void run() {
     // listen for messages
-    DatagramSocket inSocket = null;
-    byte[] inBuffer = new byte[140];
+    receiveMethod();
+  }
+
+
+  public static void receiveMethod() {
+
+    byte[] inBuffer = new byte[1000];
+
     DatagramPacket inPacket = new DatagramPacket(inBuffer, inBuffer.length);
 
-    int sourcePort = inPacket.getPort();
-    InetAddress sourceAddress = inPacket.getAddress();
-
-
-    System.out.println(sourcePort + " " + sourceAddress);
-
-    try {
-      inSocket = new DatagramSocket(31000, address);
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.exit(-1);
-    }
 
     do {
       for (int i = 0; i < inBuffer.length; i++) {
@@ -106,32 +114,26 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
       try {
         // this thread will block in the receive call
         // until a message is received
-        System.out.println("Waiting for input...");
-        inSocket.receive(inPacket);
+        System.out.println("Waiting for message");
+        socket.receive(inPacket);
       } catch (Exception e) {
         e.printStackTrace();
         System.exit(-1);
       }
 
+      int sourcePort = inPacket.getPort();
+      InetAddress sourceAddress = inPacket.getAddress();
       String message = new String(inPacket.getData());
+
+
+
       System.out.println("Received message = " + message);
 
-      newWindow chat = new newWindow();
-      chat.setVisible(true);
-      chat.setTitle("PORT: " + sourcePort + " IP Address: " + sourceAddress.getHostAddress());
-      chat.setPort(sourcePort);
-      try {
-        chat.setAddress(sourceAddress);
-      } catch (UnknownHostException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-      chat.addToTextArea(message);
+      // check if window exist
+
 
     } while (true);
   }
-
-
 
   @Override
   public void actionPerformed(ActionEvent e) {
@@ -139,9 +141,9 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
     switch (btnClicked.getText()) {
       case "New Message":
         System.out.println("creating new message");
-
         newWindow chat = new newWindow();
         chat.setVisible(true);
+
         array.addWindow(chat);
         break;
       case "Exit":

@@ -16,10 +16,8 @@ import javax.swing.border.EmptyBorder;
 
 @SuppressWarnings("serial")
 public class newWindow extends JFrame implements ActionListener, KeyListener, Runnable {
-  private DatagramSocket socket;
-  private JFrame mainWindow;
-  private String message;
-  private sendMessage sendMsg;
+  private static DatagramSocket dgsocket;
+  private static Socket socket;
   private InetAddress addr;
   private int port;
   private JTextArea textArea;
@@ -27,11 +25,9 @@ public class newWindow extends JFrame implements ActionListener, KeyListener, Ru
   private JTextField dest_ip;
   private JTextField dest_port;
 
-  public void setInstance(DatagramSocket socket, String text, sendMessage msg, JFrame chatWindow) {
+  public void setInstance(DatagramSocket dgsocket, Socket socket) {
+    this.dgsocket = dgsocket;
     this.socket = socket;
-    this.message = text;
-    this.sendMsg = msg;
-    this.mainWindow = chatWindow;
   }
 
   public void setAddress(InetAddress addr) throws UnknownHostException {
@@ -90,13 +86,15 @@ public class newWindow extends JFrame implements ActionListener, KeyListener, Ru
     scrollPane.setBounds(25, 29, 300, 153);
     panel.add(scrollPane);
 
+
+
   }
 
   public void addToTextArea(String txt) {
-    if (textArea.getText().trim().length() == 0) {
-      textArea.append(txt);
+    if (this.textArea.getText().trim().length() == 0) {
+      this.textArea.append(txt);
     } else {
-      textArea.append("\n" + txt);
+      this.textArea.append("\n" + txt);
     }
   }
 
@@ -109,8 +107,7 @@ public class newWindow extends JFrame implements ActionListener, KeyListener, Ru
       case "Send":
         String text = textField.getText();
         textField.setText("");
-        sendMsg.sendPacket(text, addr, port);
-        this.addToTextArea("Me: " + text);
+        addToTextArea("Me: " + text);
         break;
       default:
         break;
@@ -136,20 +133,20 @@ public class newWindow extends JFrame implements ActionListener, KeyListener, Ru
           e.printStackTrace();
         }
         dest_ip.setEnabled(false);
-
+        System.out.println(this.addr);
       }
-
       String str_port = dest_port.getText();
-      System.out.println(str_port);
       if (str_port != "") {
         dest_port.setEnabled(false);
         this.setPort(Integer.parseInt(str_port));
+        System.out.println(this.port);
       }
     }
 
 
 
   }
+
 
   @Override
   public void keyTyped(KeyEvent arg0) {
@@ -158,9 +155,6 @@ public class newWindow extends JFrame implements ActionListener, KeyListener, Ru
   }
 
   @Override
-  public void run() {
-
-
-  }
+  public void run() {}
 
 }
