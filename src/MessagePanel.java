@@ -110,7 +110,8 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
       // receive packet
       if (inPacket != null) {
         byte[] inBuffer = inPacket.getData();
-        String inMessage = new String(inBuffer);
+        System.out.println(inPacket.getLength());
+        String inMessage = new String(inBuffer).substring(0, inPacket.getLength());
         InetAddress senderAddress = inPacket.getAddress();
         int senderPort = inPacket.getPort();
         System.out.println("Received message: " + inMessage);
@@ -126,6 +127,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
           // make new window
           newWindow newChat = new newWindow();
           newChat.setVisible(true);
+          newChat.toFront();
           newChat.setTitle(key);
           newChat.setSocket(mySocket);
           newChat.setSourceAddress(senderAddress);
