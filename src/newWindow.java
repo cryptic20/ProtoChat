@@ -18,6 +18,7 @@ public class newWindow extends JFrame implements ActionListener, KeyListener, Ru
   private Socket mySocket;
   private InetAddress sourceAddress;
   private int sourcePort;
+  private String frameTitle;
   private JTextArea textArea;
   private JTextField textField;
   private JTextField dest_ip;
@@ -27,26 +28,22 @@ public class newWindow extends JFrame implements ActionListener, KeyListener, Ru
     this.mySocket = socket;
   }
 
-  public void setSourceAddress(InetAddress sourceAdd) {
+  /**
+   * This will also set the chat window title.
+   * 
+   * @param sourceAdd InetAddress of the source.
+   * @param port Port number of the source.
+   */
+  public void setAddressP(InetAddress sourceAdd, int port) {
     this.sourceAddress = sourceAdd;
-  }
-
-  public void setSourcePort(int port) {
     this.sourcePort = port;
-  }
-
-  public void updateSourcePortField(String port) {
-    dest_port.setText(port);
-    dest_port.setEnabled(false);
+    this.frameTitle = sourceAdd.getHostAddress() + ":" + port;
+    this.setTitle(sourceAdd.getHostAddress() + ":" + port);
   }
 
   public void updateSourceAddressField(String address) {
     dest_ip.setText(address);
     dest_ip.setEnabled(false);
-  }
-
-  public void setTitle(String title) {
-    this.setTitle(title);
   }
 
 
