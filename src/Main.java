@@ -1,7 +1,7 @@
 import javax.swing.JFrame;
 
 /**
- * Simple chat application using IP datagram and sockets.
+ * Simple chat application using IP DatagramSocket.
  * 
  * @author S Wyco
  */

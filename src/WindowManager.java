@@ -3,7 +3,7 @@ import java.util.HashMap;
 /*
  * This class is used for managing the chat window using HashMap.
  */
-public class windowManager {
+public class WindowManager {
   private HashMap<String, newWindow> map = new HashMap<String, newWindow>();
 
   /*
@@ -11,13 +11,11 @@ public class windowManager {
    * 
    * @param window the chat window object stored as value.
    */
-  public boolean addWindow(String title, newWindow window) {
+  public void addWindow(String title, newWindow window) {
     if (!map.containsKey(title)) {
       // if key does not exist, add to map.
       map.put(title, window);
-      return true;
     }
-    return false;
   }
 
   /*
