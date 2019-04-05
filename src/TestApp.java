@@ -30,7 +30,6 @@ public class TestApp {
         DatagramPacket inPacket = sockets[j].receive();
         if (inPacket != null) {
           byte[] inBuffer = inPacket.getData();
-          System.out.println(inPacket.getLength());
           String inMessage = new String(inBuffer).substring(0, inPacket.getLength());
           InetAddress senderAddress = inPacket.getAddress();
           int senderPort = inPacket.getPort();
