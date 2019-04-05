@@ -11,6 +11,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.DefaultCaret;
 
 @SuppressWarnings("serial")
 public class newWindow extends JFrame implements ActionListener, Runnable, KeyListener {
@@ -37,7 +38,7 @@ public class newWindow extends JFrame implements ActionListener, Runnable, KeyLi
   public newWindow() {
     setResizable(false);
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    setBounds(100, 100, 450, 300);
+    setBounds(100, 100, 425, 300);
     JPanel panel = new JPanel();
     panel.setBorder(new EmptyBorder(5, 5, 5, 5));
     add(panel);
@@ -46,17 +47,16 @@ public class newWindow extends JFrame implements ActionListener, Runnable, KeyLi
 
     messageContainer = new JTextArea();
     messageContainer.setEditable(false);
-    messageContainer.setBounds(25, 29, 407, 153);
     panel.add(messageContainer);
 
 
     JButton send = new JButton("Send");
-    send.setBounds(350, 200, 75, 25);
+    send.setBounds(330, 200, 75, 25);
     panel.add(send);
     send.addActionListener(this);
 
     messageToSend = new JTextField();
-    messageToSend.setBounds(25, 194, 300, 36);
+    messageToSend.setBounds(25, 200, 300, 25);
     messageToSend.setColumns(10);
     panel.add(messageToSend);
     messageToSend.addKeyListener(this);
@@ -65,7 +65,9 @@ public class newWindow extends JFrame implements ActionListener, Runnable, KeyLi
     JScrollPane scrollPane =
         new JScrollPane(messageContainer, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
             ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-    scrollPane.setBounds(25, 29, 300, 153);
+    DefaultCaret caret = (DefaultCaret) messageContainer.getCaret();
+    caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+    scrollPane.setBounds(25, 29, 300, 150);
     panel.add(scrollPane);
 
 
@@ -96,12 +98,10 @@ public class newWindow extends JFrame implements ActionListener, Runnable, KeyLi
 
   public void sendMessage() {
     String msg_text = messageToSend.getText();
-    if (msg_text != "") {
-      messageToSend.setText("");
-      mySocket.send(msg_text, sourceAddress, sourcePort);
-      System.out.println("message sent!");
-      addToTextArea("Me: " + msg_text);
-    }
+    messageToSend.setText("");
+    mySocket.send(msg_text, sourceAddress, sourcePort);
+    addToTextArea("Me: " + msg_text);
+
   }
 
   @Override
@@ -118,7 +118,6 @@ public class newWindow extends JFrame implements ActionListener, Runnable, KeyLi
     if (e.getKeyCode() == KeyEvent.VK_ENTER) {
       sendMessage();
     }
-
   }
 
   @Override

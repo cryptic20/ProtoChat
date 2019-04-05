@@ -15,9 +15,9 @@ import javax.swing.border.EmptyBorder;
 
 @SuppressWarnings("serial")
 public class MessagePanel extends JPanel implements Runnable, ActionListener {
-  private final int WIDTH = 275;
-  private final int HEIGHT = 475;
-  private final int port = 8080;
+  private final int WIDTH = 300;
+  private final int HEIGHT = 500;
+  private final int port = 64000;
   private static Socket mySocket;
   private Thread thread;
   private InetAddress sourceAddress;
@@ -41,7 +41,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
     gbc = new GridBagConstraints();
     gbc.gridwidth = GridBagConstraints.REMAINDER;
 
-    add(new JLabel("<html><h1><strong>Chat APP</strong></h1><hr></html>"), gbc);
+    add(new JLabel("<html><h1><strong>Proto Chat</strong></h1><hr></html>"), gbc);
 
 
     gbc.anchor = GridBagConstraints.CENTER;
@@ -110,7 +110,8 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
       // receive packet
       if (inPacket != null) {
         byte[] inBuffer = inPacket.getData();
-        String inMessage = new String(inBuffer);
+        System.out.println(inPacket.getLength());
+        String inMessage = new String(inBuffer).substring(0, inPacket.getLength());
         InetAddress senderAddress = inPacket.getAddress();
         int senderPort = inPacket.getPort();
         System.out.println("Received message: " + inMessage);
@@ -126,6 +127,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
           // make new window
           newWindow newChat = new newWindow();
           newChat.setVisible(true);
+          newChat.toFront();
           newChat.setTitle(key);
           newChat.setSocket(mySocket);
           newChat.setSourceAddress(senderAddress);
