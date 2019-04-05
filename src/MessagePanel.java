@@ -15,8 +15,8 @@ import javax.swing.border.EmptyBorder;
 
 @SuppressWarnings("serial")
 public class MessagePanel extends JPanel implements Runnable, ActionListener {
-  private final int WIDTH = 275;
-  private final int HEIGHT = 475;
+  private final int WIDTH = 300;
+  private final int HEIGHT = 500;
   private final int port = 8080;
   private static Socket mySocket;
   private Thread thread;
