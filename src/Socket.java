@@ -50,6 +50,7 @@ public class Socket {
     }
 
     System.out.println("My IP Address = " + address.getHostAddress());
+    System.out.println("My Port Number = " + portNumber);
 
     try {
       switch (socketType) {
