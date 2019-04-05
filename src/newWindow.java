@@ -2,7 +2,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import javax.swing.JButton;
@@ -16,26 +15,38 @@ import javax.swing.border.EmptyBorder;
 
 @SuppressWarnings("serial")
 public class newWindow extends JFrame implements ActionListener, KeyListener, Runnable {
-  private static DatagramSocket dgsocket;
-  private static Socket socket;
-  private InetAddress addr;
-  private int port;
+  private Socket mySocket;
+  private InetAddress sourceAddress;
+  private int sourcePort;
   private JTextArea textArea;
   private JTextField textField;
   private JTextField dest_ip;
   private JTextField dest_port;
 
-  public void setInstance(DatagramSocket dgsocket, Socket socket) {
-    this.dgsocket = dgsocket;
-    this.socket = socket;
+  public void setSocket(Socket socket) {
+    this.mySocket = socket;
   }
 
-  public void setAddress(InetAddress addr) throws UnknownHostException {
-    this.addr = addr;
+  public void setSourceAddress(InetAddress sourceAdd) {
+    this.sourceAddress = sourceAdd;
   }
 
-  public void setPort(int port) {
-    this.port = port;
+  public void setSourcePort(int port) {
+    this.sourcePort = port;
+  }
+
+  public void updateSourcePortField(String port) {
+    dest_port.setText(port);
+    dest_port.setEnabled(false);
+  }
+
+  public void updateSourceAddressField(String address) {
+    dest_ip.setText(address);
+    dest_ip.setEnabled(false);
+  }
+
+  public void setTitle(String title) {
+    this.setTitle(title);
   }
 
 
@@ -105,9 +116,10 @@ public class newWindow extends JFrame implements ActionListener, KeyListener, Ru
 
     switch (button) {
       case "Send":
-        String text = textField.getText();
+        String msg_text = textField.getText();
         textField.setText("");
-        addToTextArea("Me: " + text);
+        mySocket.send(msg_text, sourceAddress, sourcePort);
+        addToTextArea("Me: " + msg_text);
         break;
       default:
         break;
@@ -123,38 +135,30 @@ public class newWindow extends JFrame implements ActionListener, KeyListener, Ru
   public void keyReleased(KeyEvent arg0) {
 
     if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
-      String dest = dest_ip.getText();
-      if (dest != "") {
+      String dest_address = dest_ip.getText();
+      if (dest_address != "") {
         try {
-          InetAddress inet = InetAddress.getByName(dest);
-          this.setAddress(inet);
+          InetAddress inet = InetAddress.getByName(dest_address);
+
+          this.setSourceAddress(inet);
         } catch (UnknownHostException e) {
-          // TODO Auto-generated catch block
           e.printStackTrace();
+          System.exit(-1);
         }
-        dest_ip.setEnabled(false);
-        System.out.println(this.addr);
+        updateSourceAddressField(dest_address);
       }
       String str_port = dest_port.getText();
       if (str_port != "") {
-        dest_port.setEnabled(false);
-        this.setPort(Integer.parseInt(str_port));
-        System.out.println(this.port);
+        updateSourcePortField(str_port);
       }
     }
-
-
-
-  }
-
-
-  @Override
-  public void keyTyped(KeyEvent arg0) {
-    // TODO Auto-generated method stub
 
   }
 
   @Override
   public void run() {}
+
+  @Override
+  public void keyTyped(KeyEvent e) {}
 
 }
