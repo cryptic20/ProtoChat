@@ -17,7 +17,7 @@ import javax.swing.border.EmptyBorder;
 public class MessagePanel extends JPanel implements Runnable, ActionListener {
   private final int WIDTH = 300;
   private final int HEIGHT = 500;
-  private final int port = 8080;
+  private final int port = 64000;
   private static Socket mySocket;
   private Thread thread;
   private InetAddress sourceAddress;
@@ -41,7 +41,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
     gbc = new GridBagConstraints();
     gbc.gridwidth = GridBagConstraints.REMAINDER;
 
-    add(new JLabel("<html><h1><strong>Chat APP</strong></h1><hr></html>"), gbc);
+    add(new JLabel("<html><h1><strong>Proto Chat</strong></h1><hr></html>"), gbc);
 
 
     gbc.anchor = GridBagConstraints.CENTER;
