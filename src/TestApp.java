@@ -21,7 +21,7 @@ public class TestApp {
     Socket[] sockets = {first, second, third, fourth};
     int i = 1;
     for (Socket socket : sockets) {
-      socket.send("from socket" + i, sourceAddress, 8080);
+      socket.send("from socket" + i, sourceAddress, 64000);
       i++;
     }
 
@@ -37,7 +37,8 @@ public class TestApp {
           System.out.println("Received message: " + inMessage);
 
           // send a message back after receiving.
-          sockets[j].send(inMessage + "from socket" + j, senderAddress, senderPort);
+          sockets[j].send("I received your message '" + inMessage + "' from socket" + (j + 1),
+              senderAddress, senderPort);
         }
       }
 
