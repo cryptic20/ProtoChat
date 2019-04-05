@@ -8,7 +8,7 @@ public class TestApp {
   public static void main(String[] args) {
 
     try {
-      sourceAddress = InetAddress.getByName("10.0.75.1");
+      sourceAddress = InetAddress.getLocalHost();
     } catch (UnknownHostException e) {
       e.printStackTrace();
     }
