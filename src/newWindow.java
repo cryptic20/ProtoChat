@@ -38,7 +38,7 @@ public class newWindow extends JFrame implements ActionListener, Runnable, KeyLi
   public newWindow() {
     setResizable(false);
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    setBounds(100, 100, 450, 300);
+    setBounds(100, 100, 425, 300);
     JPanel panel = new JPanel();
     panel.setBorder(new EmptyBorder(5, 5, 5, 5));
     add(panel);
@@ -51,12 +51,12 @@ public class newWindow extends JFrame implements ActionListener, Runnable, KeyLi
 
 
     JButton send = new JButton("Send");
-    send.setBounds(350, 200, 75, 25);
+    send.setBounds(330, 200, 75, 25);
     panel.add(send);
     send.addActionListener(this);
 
     messageToSend = new JTextField();
-    messageToSend.setBounds(25, 200, 300, 35);
+    messageToSend.setBounds(25, 200, 300, 25);
     messageToSend.setColumns(10);
     panel.add(messageToSend);
     messageToSend.addKeyListener(this);
@@ -118,7 +118,6 @@ public class newWindow extends JFrame implements ActionListener, Runnable, KeyLi
     if (e.getKeyCode() == KeyEvent.VK_ENTER) {
       sendMessage();
     }
-
   }
 
   @Override
