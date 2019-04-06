@@ -74,7 +74,6 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
 
     // show my address
     getAddress();
-    add(new JLabel("<html><h3>COPYRIGHT &#169; 2019 S WYCO</h3></html>"), gbc);
 
   }
 
