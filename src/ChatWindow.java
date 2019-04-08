@@ -14,7 +14,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.text.DefaultCaret;
 
 @SuppressWarnings("serial")
-public class newWindow extends JFrame implements ActionListener, Runnable, KeyListener {
+public class ChatWindow extends JFrame implements ActionListener, Runnable, KeyListener {
   private Socket mySocket;
   private InetAddress sourceAddress;
   private int sourcePort;
@@ -35,7 +35,7 @@ public class newWindow extends JFrame implements ActionListener, Runnable, KeyLi
 
 
   // constructor
-  public newWindow() {
+  public ChatWindow() {
     setResizable(false);
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     setBounds(100, 100, 425, 300);

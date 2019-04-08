@@ -4,14 +4,14 @@ import java.util.HashMap;
  * This class is used for managing the chat window using HashMap.
  */
 public class WindowManager {
-  private HashMap<String, newWindow> map = new HashMap<String, newWindow>();
+  private HashMap<String, ChatWindow> map = new HashMap<String, ChatWindow>();
 
   /*
    * @param title Recipients InetAddress and Port number as key.
    * 
    * @param window the chat window object stored as value.
    */
-  public void addWindow(String title, newWindow window) {
+  public void addWindow(String title, ChatWindow window) {
     if (!map.containsKey(title)) {
       // if key does not exist, add to map.
       map.put(title, window);

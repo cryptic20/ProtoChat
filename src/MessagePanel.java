@@ -117,14 +117,14 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
 
         // search window manager if there's already a window for source address and port
         String key = senderAddress.getHostAddress() + ":" + senderPort;
-        newWindow window = (newWindow) winManager.getWindow(key);
+        ChatWindow window = (ChatWindow) winManager.getWindow(key);
         if (window != null) {
           window.setVisible(true);
           window.toFront();
           window.addToTextArea(key + ": " + inMessage);
         } else {
           // make new window
-          newWindow newChat = new newWindow();
+          ChatWindow newChat = new ChatWindow();
           newChat.setVisible(true);
           newChat.toFront();
           newChat.setTitle(key);
@@ -163,7 +163,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
     switch (btnClicked.getText()) {
       case "New Message":
         this.extractFields(dest_ip, dest_port);
-        newWindow check_chat = (newWindow) winManager.getWindow(this.windowTitle);
+        ChatWindow check_chat = (ChatWindow) winManager.getWindow(this.windowTitle);
         if (check_chat != null) {
           // chat already exists
           System.out.println("chat exist! pulling from map");
@@ -172,7 +172,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
         } else {
           // make new window chat
           System.out.println("creating new chat window");
-          newWindow chat = new newWindow();
+          ChatWindow chat = new ChatWindow();
           chat.setVisible(true);
           chat.setSocket(mySocket);
           chat.setTitle(this.sourceAddress.getHostAddress() + ":" + this.sourcePort);
