@@ -45,8 +45,9 @@ public class ChatWindow extends JFrame implements ActionListener, Runnable, KeyL
     panel.setLayout(null);
 
 
-    messageContainer = new JTextArea();
+    messageContainer = new JTextArea(25, 29);
     messageContainer.setEditable(false);
+    messageContainer.setLineWrap(true);
     panel.add(messageContainer);
 
 
@@ -62,9 +63,8 @@ public class ChatWindow extends JFrame implements ActionListener, Runnable, KeyL
     messageToSend.addKeyListener(this);
 
 
-    JScrollPane scrollPane =
-        new JScrollPane(messageContainer, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-            ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    JScrollPane scrollPane = new JScrollPane(messageContainer,
+        JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
     DefaultCaret caret = (DefaultCaret) messageContainer.getCaret();
     caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
     scrollPane.setBounds(25, 29, 300, 150);
