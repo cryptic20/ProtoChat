@@ -123,8 +123,14 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
     add(buttons, gbc);
 
     setSocketType(true); // default is no broadcast
-    System.out.println(mySocket.getAddress());
 
+    JLabel ip_info = new JLabel("<html><h1><strong>My IP: " + mySocket.getAddress().getHostAddress()
+        + "</h1><h2>My PORT: " + port + "</strong></h2></html>");
+    noBroadcastPanel.add(ip_info);
+
+    JLabel name_info = new JLabel("<html><h1><strong> My Name: "
+        + mySocket.getAddress().getHostName() + "</strong></h1></html>");
+    broadcastPanel.add(name_info);
   }
 
   public void addNotify() {
@@ -209,6 +215,11 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
         }
       }
     } while (true);
+  }
+
+  public void extractName(JTextField name_field) {
+    String name = name_field.getText();
+
   }
 
   public void extractIPandPortFields(JTextField ip_address, JTextField port) {
