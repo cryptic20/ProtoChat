@@ -211,8 +211,9 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
         InetAddress senderAddress = inPacket.getAddress();
         int senderPort = inPacket.getPort();
         System.out.println("Received message: " + inMessage);
+        String key = "";
 
-        if (isBroadcast) {
+        if (isBroadcast && (inMessage.contains("#####") || inMessage.contains("?????"))) {
           String[] split_message = inMessage.split(" "); // split message by white-space;
           if (split_message[0].equals("?????") && split_message[1].equals(myName)) {
             sourceName = split_message[3];
@@ -221,18 +222,27 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
             // for broadcast, window title is "recipients name + their IP address"
           } else if (split_message[0].equals("#####") && split_message[1].equals(myName)) {
             // make the chat window
-            String key = sourceName + senderAddress;
-            checkHashMap(key, inMessage, senderAddress, senderPort);
-          } else {
-            String key = sourceName + senderAddress;
+            try {
+              senderAddress = InetAddress.getByName(split_message[3]);
+            } catch (UnknownHostException e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+              System.exit(-1);
+            }
+            key = sourceName + senderAddress;
             checkHashMap(key, inMessage, senderAddress, senderPort);
           }
 
-        } else {
+        } else if (isBroadcast && (!inMessage.contains("#####") || !inMessage.contains("?????"))) {
+          key = sourceName + senderAddress;
+          checkHashMap(key, inMessage, senderAddress, senderPort);
+        }
+
+        else {
           // if no broadcast, window title will be "IP address + port number"
           // search window manager if there's already a window for source address and port
-          String key = senderAddress.getHostAddress() + ":" + senderPort;
-          checkHashMap(key, inMessage, senderAddress, senderPort);
+          String diff_key = senderAddress.getHostAddress() + ":" + senderPort;
+          checkHashMap(diff_key, inMessage, senderAddress, senderPort);
         }
       }
     } while (true);
