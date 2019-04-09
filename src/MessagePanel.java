@@ -213,17 +213,18 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
         System.out.println("Received message: " + inMessage);
 
         if (isBroadcast) {
-          String key = sourceName + "/" + sourceAddress.getHostAddress();
           String[] split_message = inMessage.split(" "); // split message by white-space;
           if (split_message[0].equals("?????") && split_message[1].equals(myName)) {
             sourceName = split_message[3];
             // reply automatically only to sender with my name and IP address
-            mySocket.send("##### " + myName + " ##### " + myAddress, sourceAddress, senderPort);
+            mySocket.send("##### " + sourceName + " ##### " + myAddress, senderAddress, senderPort);
             // for broadcast, window title is "recipients name + their IP address"
-          } else if (split_message[0].equals("#####") && split_message[1].equals(sourceName)) {
+          } else if (split_message[0].equals("#####") && split_message[1].equals(myName)) {
             // make the chat window
+            String key = sourceName + senderAddress;
             checkHashMap(key, inMessage, senderAddress, senderPort);
           } else {
+            String key = sourceName + senderAddress;
             checkHashMap(key, inMessage, senderAddress, senderPort);
           }
 
