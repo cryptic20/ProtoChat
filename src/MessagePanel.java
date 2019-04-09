@@ -20,10 +20,13 @@ import javax.swing.border.EmptyBorder;
 public class MessagePanel extends JPanel implements Runnable, ActionListener {
   private final int WIDTH = 300;
   private final int HEIGHT = 400;
-  private final int port = 64000;
+  private final static int myPort = 64000;
   private static Socket mySocket;
   private Thread thread;
-  private InetAddress sourceAddress;
+  private static String myAddress;
+  private static String myName;
+  private static String sourceName;
+  private static InetAddress sourceAddress;
   private int sourcePort;
   private GridBagConstraints gbc;
   private JButton msg;
@@ -38,6 +41,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
   private JRadioButton noBroadcast_btn;
   private JPanel noBroadcastPanel;
   private JPanel broadcastPanel;
+  private static boolean isBroadcast;
 
   public MessagePanel() {
     super();
@@ -123,13 +127,14 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
     add(buttons, gbc);
 
     setSocketType(true); // default is no broadcast
-
+    myAddress = mySocket.getAddress().getHostAddress();
     JLabel ip_info = new JLabel("<html><h1><strong>My IP: " + mySocket.getAddress().getHostAddress()
-        + "</h1><h2>My PORT: " + port + "</strong></h2></html>");
+        + "</h1><h2>My PORT: " + myPort + "</strong></h2></html>");
     noBroadcastPanel.add(ip_info);
 
-    JLabel name_info = new JLabel("<html><h1><strong> My Name: "
-        + mySocket.getAddress().getHostName() + "</strong></h1></html>");
+    myName = mySocket.getAddress().getHostName();
+    JLabel name_info =
+        new JLabel("<html><h1><strong> My Name: " + myName + "</strong></h1></html>");
     broadcastPanel.add(name_info);
   }
 
@@ -154,7 +159,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
     // set my socket based on selected type
     if (broadcast) {
       System.out.println("Socket type is BROADCAST");
-      mySocket = new Socket(this.port, Socket.SocketType.Broadcast);
+      mySocket = new Socket(myPort, Socket.SocketType.Broadcast);
       // set broadcast button as selected
       broadcast_btn.setSelected(true);
       // show broadcast panel and hide no broadcast panel
@@ -163,7 +168,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
     } else {
       // no broadcast
       System.out.println("Socket type is NO BROADCAST");
-      mySocket = new Socket(this.port, Socket.SocketType.NoBroadcast);
+      mySocket = new Socket(myPort, Socket.SocketType.NoBroadcast);
       noBroadcast_btn.setSelected(true);
       // hide broadcast panel and show no broadcast panel
       noBroadcastPanel.setVisible(true);
@@ -181,7 +186,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
   }
 
 
-  public static void receiveMethod() {
+  private static void receiveMethod() {
     do {
       DatagramPacket inPacket = mySocket.receive();
       // receive packet
@@ -193,33 +198,70 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
         int senderPort = inPacket.getPort();
         System.out.println("Received message: " + inMessage);
 
-        // search window manager if there's already a window for source address and port
-        String key = senderAddress.getHostAddress() + ":" + senderPort;
-        ChatWindow window = (ChatWindow) winManager.getWindow(key);
-        if (window != null) {
-          window.setVisible(true);
-          window.toFront();
-          window.addToTextArea(key + ": " + inMessage);
+        if (isBroadcast) {
+          String[] split_message = inMessage.split(" "); // split message by white-space;
+          if (split_message[0] == "?????" && split_message[1] == myName) {
+            // reply automatically only to sender if my name matches the broadcasted message
+            mySocket.send("##### " + split_message[3] + " ##### " + myAddress, sourceAddress,
+                senderPort);
+          }
+          // for broadcast, window title is "recipients name + their IP address"
+          String key = sourceName + " " + sourceAddress.getHostAddress();
+          checkHashMap(key, inMessage, senderAddress, senderPort);
         } else {
-          // make new window
-          ChatWindow newChat = new ChatWindow();
-          newChat.setVisible(true);
-          newChat.toFront();
-          newChat.setTitle(key);
-          newChat.setSocket(mySocket);
-          newChat.setSourceAddress(senderAddress);
-          newChat.setSourcePort(senderPort);
-          newChat.addToTextArea(key + ": " + inMessage);
-          // add the new window to window manager
-          winManager.addWindow(key, newChat);
+          // if no broadcast, window title will be "IP address + port number"
+          // search window manager if there's already a window for source address and port
+          String key = senderAddress.getHostAddress() + ":" + senderPort;
+          checkHashMap(key, inMessage, senderAddress, senderPort);
         }
       }
     } while (true);
   }
 
-  public void extractName(JTextField name_field) {
-    String name = name_field.getText();
+  /**
+   * This will check whether a chat window exists already in winManager's HashMap, if not will
+   * create a new one and add it to the HashMap.
+   * 
+   * @param key The title of the window.
+   * @param senderAddress The source's InetAddress.
+   * @param senderPort The source's port number.
+   * @param inMessage The message from the sender.
+   */
+  private static void checkHashMap(String key, String inMessage, InetAddress senderAddress,
+      int senderPort) {
 
+    ChatWindow window = (ChatWindow) winManager.getWindow(key);
+    if (window != null) {
+      window.setVisible(true);
+      window.toFront();
+      window.addToTextArea(sourceName + ": " + inMessage);
+    } else {
+      ChatWindow newChat = new ChatWindow();
+      newChat.toFront();
+      newChat.setTitle(key);
+      newChat.setSocket(mySocket);
+      newChat.setSourceAddress(senderAddress);
+      newChat.setSourcePort(senderPort);
+      newChat.addToTextArea(sourceName + ": " + inMessage);
+      // add the new window to window manager
+      winManager.addWindow(key, newChat);
+    }
+
+  }
+
+  public void extractNameFields(JTextField name_field) {
+    String name = name_field.getText();
+    sourceName = name;
+    if (name != "") {
+      try {
+        sourceAddress = InetAddress.getLocalHost();
+      } catch (UnknownHostException e) {
+        e.printStackTrace();
+        System.exit(-1);
+      }
+    }
+    // clear field
+    name_field.setText("");
   }
 
   public void extractIPandPortFields(JTextField ip_address, JTextField port) {
@@ -250,9 +292,11 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
     public void actionPerformed(ActionEvent e) {
       JRadioButton socket_type = (JRadioButton) e.getSource();
       if (socket_type.getText() == "Broadcast") {
-        setSocketType(true);
+        isBroadcast = true;
+        setSocketType(isBroadcast);
       } else {
-        setSocketType(false);
+        isBroadcast = false;
+        setSocketType(isBroadcast);
       }
 
     }
@@ -262,34 +306,41 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
   @Override
   public void actionPerformed(ActionEvent e) {
     JButton btnClicked = (JButton) e.getSource();
-    switch (btnClicked.getText()) {
-      case "New Message":
-        extractIPandPortFields(dest_ip, dest_port);
-        ChatWindow check_chat = (ChatWindow) winManager.getWindow(this.windowTitle);
-        if (check_chat != null) {
-          // chat already exists
-          System.out.println("chat exist! pulling from map");
-          check_chat.setVisible(true);
-          check_chat.toFront();
-        } else {
-          // make new window chat
-          System.out.println("creating new chat window");
-          ChatWindow chat = new ChatWindow();
-          chat.setVisible(true);
-          chat.setSocket(mySocket);
-          chat.setTitle(this.sourceAddress.getHostAddress() + ":" + this.sourcePort);
-          chat.setSocket(mySocket);
-          chat.setSourceAddress(this.sourceAddress);
-          chat.setSourcePort(this.sourcePort);
-          // add the new window to window manager
-          winManager.addWindow(this.windowTitle, chat);
-        }
-        break;
-      case "Exit":
-        System.exit(0);
-        break;
-      default:
-        break;
+    if (isBroadcast) {
+      // if broadcast, relay a message to everyone on local network
+      extractNameFields(dest_name);
+      mySocket.send("????? " + dest_name + " ##### " + myName, sourceAddress, myPort);
+    } else {
+      switch (btnClicked.getText()) {
+        case "New Message":
+          extractIPandPortFields(dest_ip, dest_port);
+          ChatWindow check_chat = (ChatWindow) winManager.getWindow(this.windowTitle);
+          if (check_chat != null) {
+            // chat already exists
+            System.out.println("chat exist! pulling from map");
+            check_chat.setVisible(true);
+            check_chat.toFront();
+          } else {
+            // make new window chat
+            System.out.println("creating new chat window");
+            ChatWindow chat = new ChatWindow();
+            chat.setVisible(true);
+            chat.setSocket(mySocket);
+            chat.setTitle(sourceAddress.getHostAddress() + ":" + sourcePort);
+            chat.setSocket(mySocket);
+            chat.setSourceAddress(sourceAddress);
+            chat.setSourcePort(sourcePort);
+            // add the new window to window manager
+            winManager.addWindow(this.windowTitle, chat);
+          }
+          break;
+        case "Exit":
+          System.exit(0);
+          break;
+        default:
+          break;
+      }
     }
+
   }
 }
