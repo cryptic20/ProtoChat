@@ -10,6 +10,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -155,6 +156,19 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
     // if port is binded by previous socket, close it
     if (mySocket != null) {
       mySocket.close();
+
+      // close previous opened chat from previous socket
+      java.awt.Window win[] = java.awt.Window.getWindows();
+      if (win.length > 0) {
+        for (int i = 0; i < win.length; i++) {
+          JFrame frame = (JFrame) win[i];
+          String title = frame.getTitle();
+          if (title != "Protocol Chat") {
+            win[i].dispose();
+          }
+        }
+      }
+
     }
     // set my socket based on selected type
     if (broadcast) {
@@ -227,14 +241,19 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
    * @param senderPort The source's port number.
    * @param inMessage The message from the sender.
    */
-  private static void checkHashMap(String key, String inMessage, InetAddress senderAddress,
+  public static void checkHashMap(String key, String inMessage, InetAddress senderAddress,
       int senderPort) {
-
+    String sender = "";
+    if (isBroadcast) {
+      sender = sourceName;
+    } else {
+      sender = key;
+    }
     ChatWindow window = (ChatWindow) winManager.getWindow(key);
     if (window != null) {
       window.setVisible(true);
       window.toFront();
-      window.addToTextArea(sourceName + ": " + inMessage);
+      window.addToTextArea(sender + ": " + inMessage);
     } else {
       ChatWindow newChat = new ChatWindow();
       newChat.toFront();
@@ -242,14 +261,15 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
       newChat.setSocket(mySocket);
       newChat.setSourceAddress(senderAddress);
       newChat.setSourcePort(senderPort);
-      newChat.addToTextArea(sourceName + ": " + inMessage);
+      newChat.addToTextArea(sender + ": " + inMessage);
+      newChat.setVisible(true);
       // add the new window to window manager
       winManager.addWindow(key, newChat);
     }
 
   }
 
-  public void extractNameFields(JTextField name_field) {
+  private void extractNameFields(JTextField name_field) {
     String name = name_field.getText();
     sourceName = name;
     if (name != "") {
@@ -264,7 +284,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
     name_field.setText("");
   }
 
-  public void extractIPandPortFields(JTextField ip_address, JTextField port) {
+  private void extractIPandPortFields(JTextField ip_address, JTextField port) {
 
     String ip = ip_address.getText();
     String port_num = port.getText();
