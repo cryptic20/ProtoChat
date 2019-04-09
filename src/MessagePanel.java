@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -91,7 +92,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
 
     // broadcast fields
     dest_name = new JTextField();
-    JLabel name_label = new JLabel("Enter Name");
+    JLabel name_label = new JLabel("Enter Name:");
     name_label.setLabelFor(dest_name);
     name_label.setToolTipText("Enter the name of the recipient");
     broadcastPanel.add(name_label, gbc);
@@ -127,7 +128,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
     // add button panel to main
     add(buttons, gbc);
 
-    setSocketType(true); // default is no broadcast
+    setSocketType(false); // default is no broadcast
     myAddress = mySocket.getAddress().getHostAddress();
     JLabel ip_info = new JLabel("<html><h1><strong>My IP: " + mySocket.getAddress().getHostAddress()
         + "</h1><h2>My PORT: " + myPort + "</strong></h2></html>");
@@ -214,14 +215,21 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
 
         if (isBroadcast) {
           String[] split_message = inMessage.split(" "); // split message by white-space;
+          System.out.println(Arrays.toString(split_message));
+          sourceName = split_message[3];
+          //
           if (split_message[0] == "?????" && split_message[1] == myName) {
             // reply automatically only to sender if my name matches the broadcasted message
-            mySocket.send("##### " + split_message[3] + " ##### " + myAddress, sourceAddress,
-                senderPort);
+            mySocket.send("##### " + sourceName + " ##### " + myAddress, sourceAddress, senderPort);
+            // for broadcast, window title is "recipients name + their IP address"
           }
-          // for broadcast, window title is "recipients name + their IP address"
-          String key = sourceName + " " + sourceAddress.getHostAddress();
-          checkHashMap(key, inMessage, senderAddress, senderPort);
+          if (split_message[0] == "#####" && split_message[1] == myName) {
+            // make the chat window
+            String key = sourceName + "/" + sourceAddress.getHostAddress();
+            System.out.println("key: " + key);
+            checkHashMap(key, inMessage, senderAddress, senderPort);
+          }
+
         } else {
           // if no broadcast, window title will be "IP address + port number"
           // search window manager if there's already a window for source address and port
@@ -269,26 +277,29 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
 
   }
 
-  private void extractNameFields(JTextField name_field) {
+  private boolean extractNameFields(JTextField name_field) {
     String name = name_field.getText();
-    sourceName = name;
-    if (name != "") {
+    System.out.println(name);
+    if (!name_field.getText().equals("")) {
+      sourceName = name;
       try {
         sourceAddress = InetAddress.getLocalHost();
       } catch (UnknownHostException e) {
         e.printStackTrace();
         System.exit(-1);
       }
+    } else {
+      return false;
     }
     // clear field
     name_field.setText("");
+    return true;
   }
 
   private void extractIPandPortFields(JTextField ip_address, JTextField port) {
 
     String ip = ip_address.getText();
-    String port_num = port.getText();
-    if (ip != "" && port_num != "") {
+    if (!ip_address.getText().equals("") && !port.getText().equals("")) {
       try {
         sourcePort = Integer.parseInt(port.getText());
         sourceAddress = InetAddress.getByName(ip);
@@ -327,9 +338,21 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
   public void actionPerformed(ActionEvent e) {
     JButton btnClicked = (JButton) e.getSource();
     if (isBroadcast) {
-      // if broadcast, relay a message to everyone on local network
-      extractNameFields(dest_name);
-      mySocket.send("????? " + dest_name + " ##### " + myName, sourceAddress, myPort);
+      switch (btnClicked.getText()) {
+        case "New Message":
+          // if broadcast, relay a message to everyone on local network
+          if (extractNameFields(dest_name)) {
+            mySocket.send("????? " + sourceName + " ##### " + myName, sourceAddress, myPort);
+          } else {
+            System.out.println("Empty field error!");
+          }
+          break;
+        case "Exit":
+          System.exit(0);
+          break;
+        default:
+          break;
+      }
     } else {
       switch (btnClicked.getText()) {
         case "New Message":
