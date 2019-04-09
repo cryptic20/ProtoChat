@@ -216,15 +216,16 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
           String key = sourceName + "/" + sourceAddress.getHostAddress();
           String[] split_message = inMessage.split(" "); // split message by white-space;
           if (split_message[0].equals("?????") && split_message[1].equals(myName)) {
+            sourceName = split_message[3];
             // reply automatically only to sender with my name and IP address
             mySocket.send("##### " + myName + " ##### " + myAddress, sourceAddress, senderPort);
             // for broadcast, window title is "recipients name + their IP address"
-          }
-          if (split_message[0].equals("#####") && split_message[1].equals(sourceName)) {
+          } else if (split_message[0].equals("#####") && split_message[1].equals(sourceName)) {
             // make the chat window
             checkHashMap(key, inMessage, senderAddress, senderPort);
+          } else {
+            checkHashMap(key, inMessage, senderAddress, senderPort);
           }
-          checkHashMap(key, inMessage, senderAddress, senderPort);
 
         } else {
           // if no broadcast, window title will be "IP address + port number"
