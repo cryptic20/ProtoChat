@@ -211,7 +211,8 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
         InetAddress senderAddress = inPacket.getAddress();
         int senderPort = inPacket.getPort();
         System.out.println("Received message: " + inMessage);
-        String key = "";
+        String key = senderAddress.getHostAddress() + ":" + senderPort;
+
 
         if (isBroadcast && (inMessage.contains("#####") || inMessage.contains("?????"))) {
           String[] split_message = inMessage.split(" "); // split message by white-space;
@@ -225,24 +226,20 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
             try {
               senderAddress = InetAddress.getByName(split_message[3]);
             } catch (UnknownHostException e) {
-              // TODO Auto-generated catch block
               e.printStackTrace();
               System.exit(-1);
             }
-            key = sourceName;
             checkHashMap(key, inMessage, senderAddress, senderPort);
           }
 
         } else if (isBroadcast && (!inMessage.contains("#####") || !inMessage.contains("?????"))) {
-          key = sourceName + senderAddress;
           checkHashMap(key, inMessage, senderAddress, senderPort);
         }
 
         else {
           // if no broadcast, window title will be "IP address + port number"
           // search window manager if there's already a window for source address and port
-          String diff_key = senderAddress.getHostAddress() + ":" + senderPort;
-          checkHashMap(diff_key, inMessage, senderAddress, senderPort);
+          checkHashMap(key, inMessage, senderAddress, senderPort);
         }
       }
     } while (true);
@@ -259,25 +256,29 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
    */
   public static void checkHashMap(String key, String inMessage, InetAddress senderAddress,
       int senderPort) {
-    String sender = "";
-    if (isBroadcast) {
-      sender = sourceName;
-    } else {
-      sender = key;
-    }
+
     ChatWindow window = (ChatWindow) winManager.getWindow(key);
     if (window != null) {
+
+      String sender_name = "";
+      if (isBroadcast) {
+        sender_name = window.getName();
+      } else {
+        sender_name = key;
+      }
+
       window.setVisible(true);
       window.toFront();
-      window.addToTextArea(sender + ": " + inMessage);
+      window.addToTextArea(sender_name + ": " + inMessage);
     } else {
       ChatWindow newChat = new ChatWindow();
       newChat.toFront();
-      newChat.setTitle(key);
+      newChat.setName(sourceName);
+      newChat.setTitle(sourceName + senderAddress);
       newChat.setSocket(mySocket);
       newChat.setSourceAddress(senderAddress);
       newChat.setSourcePort(senderPort);
-      newChat.addToTextArea(sender + ": " + inMessage);
+      newChat.addToTextArea("starting converstation...");
       newChat.setVisible(true);
       // add the new window to window manager
       winManager.addWindow(key, newChat);
@@ -290,6 +291,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
     System.out.println(name);
     if (!name_field.getText().equals("")) {
       sourceName = name;
+
       try {
         sourceAddress = InetAddress.getLocalHost();
       } catch (UnknownHostException e) {
@@ -353,7 +355,14 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
         case "New Message":
           // if broadcast, relay a message to everyone on local network
           if (extractNameFields(dest_name)) {
-            mySocket.send("????? " + sourceName + " ##### " + myName, sourceAddress, myPort);
+            ChatWindow window = (ChatWindow) winManager.getWindow(sourceName);
+            if (window != null) {
+              window.setVisible(true);
+              window.toFront();
+            } else {
+              // find the person by sending a broadcast message
+              mySocket.send("????? " + sourceName + " ##### " + myName, sourceAddress, myPort);
+            }
           } else {
             System.out.println("Empty field!");
           }

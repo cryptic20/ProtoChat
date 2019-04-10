@@ -20,6 +20,15 @@ public class ChatWindow extends JFrame implements ActionListener, Runnable, KeyL
   private int sourcePort;
   private JTextArea messageContainer;
   private JTextField messageToSend;
+  private String name;
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getName() {
+    return this.name;
+  }
 
   public void setSocket(Socket socket) {
     this.mySocket = socket;
