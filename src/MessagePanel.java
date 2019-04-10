@@ -229,7 +229,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
               e.printStackTrace();
               System.exit(-1);
             }
-            key = sourceName + senderAddress;
+            key = sourceName;
             checkHashMap(key, inMessage, senderAddress, senderPort);
           }
 
