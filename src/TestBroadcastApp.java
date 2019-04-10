@@ -20,7 +20,8 @@ public class TestBroadcastApp {
     Socket fourth = new Socket(port + 3, Socket.SocketType.Broadcast);
     Socket[] sockets = {first, second, third, fourth};
     int i = 1;
-    sockets[0].send("????? Scher ##### socket" + i, sourceAddress, 64000);
+    sockets[0].send("????? " + sourceAddress.getHostName() + " ##### socket" + i, sourceAddress,
+        64000);
     // for (Socket socket : sockets) {
     // socket.send("????? Scher ##### socket" + i, sourceAddress, 64000);
     // i++;
