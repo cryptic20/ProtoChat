@@ -206,7 +206,6 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
       // receive packet
       if (inPacket != null) {
         byte[] inBuffer = inPacket.getData();
-        System.out.println(inPacket.getLength());
         String inMessage = new String(inBuffer).substring(0, inPacket.getLength());
         InetAddress senderAddress = inPacket.getAddress();
         int senderPort = inPacket.getPort();
@@ -216,10 +215,11 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
 
         if (isBroadcast) {
           if (inMessage.startsWith("?????") && split_message[1].equalsIgnoreCase(myName)) {
+            sourceName = split_message[3];
+            System.out.println("split" + sourceName);
             // reply automatically only to sender with my name and IP address
-            mySocket.send("##### " + sourceName + " ##### " + myAddress, senderAddress, senderPort);
-            // make the window as well
-            checkHashMap(key, inMessage, senderAddress, senderPort, split_message[3]);
+            mySocket.send("##### " + myName + " ##### " + myAddress, senderAddress, senderPort);
+
           } else if (inMessage.startsWith("#####")) {
 
             try {
@@ -229,7 +229,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
               System.exit(-1);
             }
             checkHashMap(key, inMessage, senderAddress, senderPort, split_message[1]);
-          } else if (!inMessage.startsWith("?????")) {
+          } else if (!inMessage.startsWith("?????") || !inMessage.startsWith("#####")) {
             // name won't matter here because a window is already made
             checkHashMap(key, inMessage, senderAddress, senderPort, sourceName);
           }
@@ -260,15 +260,20 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
 
     ChatWindow window = (ChatWindow) winManager.getWindow(key);
     if (window != null) {
-      String perons_name = window.getName();
+      String persons_name = window.getName();
       window.setVisible(true);
       window.toFront();
-      window.addToTextArea(perons_name + ": " + inMessage);
+      window.addToTextArea(persons_name + ": " + inMessage);
     } else {
       ChatWindow newChat = new ChatWindow();
       newChat.toFront();
       newChat.setName(otherPerson);
-      newChat.setTitle(sourceName + senderAddress);
+
+      if (isBroadcast) {
+        newChat.setTitle(otherPerson + senderAddress);
+      } else {
+        newChat.setTitle(key);
+      }
       newChat.setSocket(mySocket);
       newChat.setSourceAddress(senderAddress);
       newChat.setSourcePort(senderPort);
@@ -276,6 +281,8 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
       newChat.setVisible(true);
       // add the new window to window manager
       winManager.addWindow(key, newChat);
+      // add user and the key to their window chat
+      winManager.addUser(otherPerson, key);
     }
 
   }
@@ -349,10 +356,10 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
         case "New Message":
           // if broadcast, relay a message to everyone on local network
           if (extractNameFields(dest_name)) {
-            ChatWindow window = (ChatWindow) winManager.getWindow(sourceName);
-            if (window != null) {
-              window.setVisible(true);
-              window.toFront();
+            String key = winManager.getUserWindow(sourceName);
+            if (key != null) {
+              // if key already exists
+              checkHashMap(key, "", sourceAddress, sourcePort, sourceName);
             } else {
               // find the person by sending a broadcast message
               mySocket.send("????? " + sourceName + " ##### " + myName, sourceAddress, myPort);
@@ -371,7 +378,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
       switch (btnClicked.getText()) {
         case "New Message":
           if (extractIPandPortFields(dest_ip, dest_port)) {
-            ChatWindow check_chat = (ChatWindow) winManager.getWindow(this.windowTitle);
+            ChatWindow check_chat = (ChatWindow) winManager.getWindow(windowTitle);
             if (check_chat != null) {
               // chat already exists
               System.out.println("chat exist! pulling from map");
@@ -388,7 +395,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
               chat.setSourceAddress(sourceAddress);
               chat.setSourcePort(sourcePort);
               // add the new window to window manager
-              winManager.addWindow(this.windowTitle, chat);
+              winManager.addWindow(windowTitle, chat);
             }
           } else {
             System.out.println("Empty field!");

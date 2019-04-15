@@ -20,15 +20,12 @@ public class TestBroadcastApp {
     Socket fourth = new Socket(port + 3, Socket.SocketType.Broadcast);
     Socket[] sockets = {first, second, third, fourth};
     int i = 1;
-    sockets[0].send("????? " + sourceAddress.getHostName() + " ##### socket" + i, sourceAddress,
-        64000);
-    // for (Socket socket : sockets) {
-    // socket.send("????? Scher ##### socket" + i, sourceAddress, 64000);
-    // i++;
-    // }
-    int k = 1;
+    for (Socket socket : sockets) {
+      socket.send("????? shen ##### socket" + i, sourceAddress, 64000);
+      i++;
+    }
     do {
-      for (int j = 0; j < 1; j++) {
+      for (int j = 0; j < 4; j++) {
         DatagramPacket inPacket = sockets[j].receive();
         if (inPacket != null) {
           byte[] inBuffer = inPacket.getData();
@@ -38,9 +35,10 @@ public class TestBroadcastApp {
           System.out.println("Received message: " + inMessage);
 
 
-          if (inMessage.contains("#####")) {
+          if (inMessage.startsWith("#####")) {
             String[] split_message = inMessage.split(" "); // split message by white-space;
-            if (split_message[0].equals("#####") && split_message[1].equals("socket" + k)) {
+            if (split_message[0].equals("#####")
+                && split_message[1].equalsIgnoreCase("socket" + (j + 1))) {
               System.out.println("it matched!");
               try {
                 senderAddress = InetAddress.getByName(split_message[3]);
@@ -59,7 +57,6 @@ public class TestBroadcastApp {
           }
 
         }
-        k++;
       }
 
     } while (true);
