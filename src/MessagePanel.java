@@ -212,34 +212,34 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
         int senderPort = inPacket.getPort();
         System.out.println("Received message: " + inMessage);
         String key = senderAddress.getHostAddress() + ":" + senderPort;
+        String[] split_message = inMessage.split(" "); // split message by white-space;
 
-
-        if (isBroadcast && (inMessage.contains("#####") || inMessage.contains("?????"))) {
-          String[] split_message = inMessage.split(" "); // split message by white-space;
-          if (split_message[0].equals("?????") && split_message[1].equals(myName)) {
-            sourceName = split_message[3];
+        if (isBroadcast) {
+          if (inMessage.startsWith("?????") && split_message[1].equalsIgnoreCase(myName)) {
             // reply automatically only to sender with my name and IP address
             mySocket.send("##### " + sourceName + " ##### " + myAddress, senderAddress, senderPort);
-            // for broadcast, window title is "recipients name + their IP address"
-          } else if (split_message[0].equals("#####") && split_message[1].equals(myName)) {
-            // make the chat window
+            // make the window as well
+            checkHashMap(key, inMessage, senderAddress, senderPort, split_message[3]);
+          } else if (inMessage.startsWith("#####")) {
+
             try {
               senderAddress = InetAddress.getByName(split_message[3]);
             } catch (UnknownHostException e) {
               e.printStackTrace();
               System.exit(-1);
             }
-            checkHashMap(key, inMessage, senderAddress, senderPort);
+            checkHashMap(key, inMessage, senderAddress, senderPort, split_message[1]);
+          } else if (!inMessage.startsWith("?????")) {
+            // name won't matter here because a window is already made
+            checkHashMap(key, inMessage, senderAddress, senderPort, sourceName);
           }
-
-        } else if (isBroadcast && (!inMessage.contains("#####") || !inMessage.contains("?????"))) {
-          checkHashMap(key, inMessage, senderAddress, senderPort);
         }
 
         else {
           // if no broadcast, window title will be "IP address + port number"
           // search window manager if there's already a window for source address and port
-          checkHashMap(key, inMessage, senderAddress, senderPort);
+          // key is also the name of that person for no broadcast type
+          checkHashMap(key, inMessage, senderAddress, senderPort, key);
         }
       }
     } while (true);
@@ -253,27 +253,21 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
    * @param senderAddress The source's InetAddress.
    * @param senderPort The source's port number.
    * @param inMessage The message from the sender.
+   * @param otherPerson Name of the person you are talking with.
    */
   public static void checkHashMap(String key, String inMessage, InetAddress senderAddress,
-      int senderPort) {
+      int senderPort, String otherPerson) {
 
     ChatWindow window = (ChatWindow) winManager.getWindow(key);
     if (window != null) {
-
-      String sender_name = "";
-      if (isBroadcast) {
-        sender_name = window.getName();
-      } else {
-        sender_name = key;
-      }
-
+      String perons_name = window.getName();
       window.setVisible(true);
       window.toFront();
-      window.addToTextArea(sender_name + ": " + inMessage);
+      window.addToTextArea(perons_name + ": " + inMessage);
     } else {
       ChatWindow newChat = new ChatWindow();
       newChat.toFront();
-      newChat.setName(sourceName);
+      newChat.setName(otherPerson);
       newChat.setTitle(sourceName + senderAddress);
       newChat.setSocket(mySocket);
       newChat.setSourceAddress(senderAddress);
