@@ -6,6 +6,8 @@ public class TestBroadcastApp {
   private static InetAddress sourceAddress;
   private static int port = 7000;
 
+  private static String name = "shen";
+
   public static void main(String[] args) {
 
 
@@ -21,7 +23,7 @@ public class TestBroadcastApp {
     Socket[] sockets = {first, second, third, fourth};
     int i = 1;
     for (Socket socket : sockets) {
-      socket.send("????? shen ##### socket" + i, sourceAddress, 64000);
+      socket.send("????? " + name + " ##### socket" + i, sourceAddress, 64000);
       i++;
     }
     do {
@@ -52,7 +54,7 @@ public class TestBroadcastApp {
 
           } else {
             sockets[j].send(
-                "I received your message Scher, '" + inMessage + "' \nfrom socket" + (j + 1),
+                "I received your message" + name + ", '" + inMessage + "' \nfrom socket" + (j + 1),
                 senderAddress, senderPort);
           }
 

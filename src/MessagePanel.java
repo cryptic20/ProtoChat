@@ -25,7 +25,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
   private static Socket mySocket;
   private Thread thread;
   private static String myAddress;
-  private static String myName;
+  private static String myName = "Shen";
   private static String sourceName;
   private static InetAddress sourceAddress;
   private int sourcePort;
@@ -133,7 +133,6 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
         + "</h1><h2>My PORT: " + myPort + "</strong></h2></html>");
     noBroadcastPanel.add(ip_info);
 
-    myName = mySocket.getAddress().getHostName();
     JLabel name_info =
         new JLabel("<html><h1><strong> My Name: " + myName + "</strong></h1></html>");
     broadcastPanel.add(name_info);
@@ -216,9 +215,12 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
         if (isBroadcast) {
           if (inMessage.startsWith("?????") && split_message[1].equalsIgnoreCase(myName)) {
             sourceName = split_message[3];
-            System.out.println("split" + sourceName);
+
             // reply automatically only to sender with my name and IP address
             mySocket.send("##### " + myName + " ##### " + myAddress, senderAddress, senderPort);
+
+            // add the window
+            checkHashMap(key, inMessage, senderAddress, senderPort, sourceName);
 
           } else if (inMessage.startsWith("#####")) {
 
