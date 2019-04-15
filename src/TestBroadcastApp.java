@@ -3,7 +3,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class TestBroadcastApp {
-  private static InetAddress sourceAddress;
+  private static InetAddress myAddress;
   private static int port = 7000;
 
   private static String name = "shen";
@@ -12,7 +12,7 @@ public class TestBroadcastApp {
 
 
     try {
-      sourceAddress = InetAddress.getLocalHost();
+      myAddress = InetAddress.getLocalHost();
     } catch (UnknownHostException e) {
       e.printStackTrace();
     }
@@ -23,7 +23,7 @@ public class TestBroadcastApp {
     Socket[] sockets = {first, second, third, fourth};
     int i = 1;
     for (Socket socket : sockets) {
-      socket.send("????? " + name + " ##### socket" + i, sourceAddress, 64000);
+      socket.send("##### socket" + i + " ##### " + myAddress.getHostAddress(), myAddress, 64000);
       i++;
     }
     do {

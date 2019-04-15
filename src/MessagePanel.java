@@ -219,11 +219,8 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
             // reply automatically only to sender with my name and IP address
             mySocket.send("##### " + myName + " ##### " + myAddress, senderAddress, senderPort);
 
-            // add the window
-            checkHashMap(key, inMessage, senderAddress, senderPort, sourceName);
-
           } else if (inMessage.startsWith("#####")) {
-
+            // set the port from previous window
             try {
               senderAddress = InetAddress.getByName(split_message[3]);
             } catch (UnknownHostException e) {
@@ -231,7 +228,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
               System.exit(-1);
             }
             checkHashMap(key, inMessage, senderAddress, senderPort, split_message[1]);
-          } else if (!inMessage.startsWith("?????") || !inMessage.startsWith("#####")) {
+          } else if (!inMessage.startsWith("?????")) {
             // name won't matter here because a window is already made
             checkHashMap(key, inMessage, senderAddress, senderPort, sourceName);
           }
@@ -291,7 +288,6 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
 
   private boolean extractNameFields(JTextField name_field) {
     String name = name_field.getText();
-    System.out.println(name);
     if (!name_field.getText().equals("")) {
       sourceName = name;
 
@@ -360,6 +356,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
           if (extractNameFields(dest_name)) {
             String key = winManager.getUserWindow(sourceName);
             if (key != null) {
+              System.out.println("exist");
               // if key already exists
               checkHashMap(key, "", sourceAddress, sourcePort, sourceName);
             } else {
