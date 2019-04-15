@@ -3,7 +3,7 @@ import java.util.HashMap;
 /*
  * This class is used for managing the chat window using HashMap.
  */
-public class WindowManager {
+public class ChatManager {
   private HashMap<String, ChatWindow> map = new HashMap<String, ChatWindow>();
 
   /*

@@ -32,7 +32,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
   private GridBagConstraints gbc;
   private JButton msg;
   private JButton exit;
-  private static WindowManager winManager;
+  private static ChatManager winManager;
   private JTextField dest_ip; // destination IP address
   private JTextField dest_port;
   private JTextField dest_name;
@@ -46,7 +46,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
 
   public MessagePanel() {
     super();
-    winManager = new WindowManager(); // this will manage which window to append received message.
+    winManager = new ChatManager(); // this will manage which window to append received message.
     setPreferredSize(new Dimension(WIDTH, HEIGHT));
     setBorder(new EmptyBorder(15, 15, 15, 15));
     setLayout(new GridBagLayout());
