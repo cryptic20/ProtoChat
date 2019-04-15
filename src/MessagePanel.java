@@ -214,11 +214,12 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
 
         if (isBroadcast) {
           if (inMessage.startsWith("?????") && split_message[1].equalsIgnoreCase(myName)) {
-            sourceName = split_message[3];
 
             // reply automatically only to sender with my name and IP address
             mySocket.send("##### " + myName + " ##### " + myAddress, senderAddress, senderPort);
 
+            // add window
+            checkHashMap(key, "", senderAddress, senderPort, split_message[3]);
           } else if (inMessage.startsWith("#####")) {
             // set the port from previous window
             try {

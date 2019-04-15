@@ -23,7 +23,8 @@ public class TestBroadcastApp {
     Socket[] sockets = {first, second, third, fourth};
     int i = 1;
     for (Socket socket : sockets) {
-      socket.send("##### socket" + i + " ##### " + myAddress.getHostAddress(), myAddress, 64000);
+      // socket.send("##### socket" + i + " ##### " + myAddress.getHostAddress(), myAddress, 64000);
+      socket.send("????? " + name + " ##### socket" + i, myAddress, 64000);
       i++;
     }
     do {
