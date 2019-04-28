@@ -293,7 +293,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
       sourceName = name;
 
       try {
-        sourceAddress = InetAddress.getLocalHost();
+        sourceAddress = InetAddress.getByName("255.255.255.255");
       } catch (UnknownHostException e) {
         e.printStackTrace();
         System.exit(-1);
