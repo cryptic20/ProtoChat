@@ -4,7 +4,7 @@ import java.net.UnknownHostException;
 
 public class TestBroadcastApp {
   private static InetAddress myAddress;
-  private static int port = 7000;
+  private static int port = 64000; // 7000
 
   private static String name = "shen";
 
