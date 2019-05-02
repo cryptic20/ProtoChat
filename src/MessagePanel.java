@@ -250,9 +250,9 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
    * create a new one and add it to the HashMap.
    * 
    * @param key The title of the window.
+   * @param inMessage The message from the sender.
    * @param senderAddress The source's InetAddress.
    * @param senderPort The source's port number.
-   * @param inMessage The message from the sender.
    * @param otherPerson Name of the person you are talking with.
    */
   public static void checkHashMap(String key, String inMessage, InetAddress senderAddress,
