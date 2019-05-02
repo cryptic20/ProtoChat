@@ -205,7 +205,7 @@ public class MessagePanel extends JPanel implements Runnable, ActionListener {
       // receive packet
       if (inPacket != null) {
         byte[] inBuffer = inPacket.getData();
-        String inMessage = new String(inBuffer).substring(0, inPacket.getLength());
+        String inMessage = new String(inBuffer).trim();
         InetAddress senderAddress = inPacket.getAddress();
         int senderPort = inPacket.getPort();
         System.out.println("Received message: " + inMessage);
